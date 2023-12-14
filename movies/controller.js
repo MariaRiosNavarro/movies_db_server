@@ -49,7 +49,7 @@ export const addOneMovie = async (req, res) => {
 
 export const getAllMovies = async (req, res) => {
   try {
-    //Wait & Save DB data in an Array
+    //Wait & recibe Data
     const dbResponse = await dbo.collection("movies").find().toArray();
     res
       .status(200)
@@ -67,7 +67,7 @@ export const getAllMovies = async (req, res) => {
 export const getOneMovie = async (req, res) => {
   try {
     const id = req.params.id;
-    //Wait & Save DB data in an Array
+    //Wait & recibe Data
     const dbResponse = await dbo
       .collection("movies")
       .findOne({ _id: new ObjectId(id) });
@@ -88,6 +88,7 @@ export const getOneMovie = async (req, res) => {
 export const deleteOneMovie = async (req, res) => {
   try {
     const id = req.params.id;
+    //Wait & remove one movie
     const dbResponse = await dbo
       .collection("movies")
       .deleteOne({ _id: new ObjectId(id) });
@@ -108,6 +109,7 @@ export const editOneMovie = async (req, res) => {
   try {
     const id = req.params.id;
     const newData = req.body;
+    //Wait & update one movie
     const dbResponse = await dbo
       .collection("movies")
       .updateOne({ _id: new ObjectId(id) }, { $set: newData });
