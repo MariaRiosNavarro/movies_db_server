@@ -1,6 +1,6 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import express from "express";
 import { router as moviesRouter } from "./movies/router.js";
 
 const app = express();

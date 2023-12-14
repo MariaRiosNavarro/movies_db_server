@@ -1,4 +1,3 @@
-import { json } from "express";
 import { dbo } from "../utils/db.js";
 
 //!Add One Movie
