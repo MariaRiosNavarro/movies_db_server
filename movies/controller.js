@@ -1,4 +1,5 @@
 import { dbo } from "../utils/db.js";
+import { ObjectId } from "mongodb";
 
 //!Add One Movie
 
@@ -65,10 +66,21 @@ export const getAllMovies = async (req, res) => {
 export const getOneMovie = async (req, res) => {
   try {
     const id = req.params.id;
+
+    //No id handling
+    if (!id) {
+      return res.status(400).json({ error: "Movie ID is missing" });
+    }
     //Wait & recibe Data
     const dbResponse = await dbo
       .collection("movies")
       .findOne({ _id: new ObjectId(id) });
+
+    //No Response handling
+    if (!dbResponse) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
     //Confirmation back  & data to frontend
     res.status(200).json({
       message: `Movie with id= ${id} sucessfully retrieved ✅`,
@@ -86,6 +98,9 @@ export const getOneMovie = async (req, res) => {
 export const deleteOneMovie = async (req, res) => {
   try {
     const id = req.params.id;
+    if (!id) {
+      return res.status(400).json({ error: "Movie ID is missing" });
+    }
     //Wait & remove one movie
     const dbResponse = await dbo
       .collection("movies")
@@ -106,6 +121,9 @@ export const deleteOneMovie = async (req, res) => {
 export const editOneMovie = async (req, res) => {
   try {
     const id = req.params.id;
+    if (!id) {
+      return res.status(400).json({ error: "Movie ID is missing" });
+    }
     const newData = req.body;
     //Wait & update one movie
     const dbResponse = await dbo
