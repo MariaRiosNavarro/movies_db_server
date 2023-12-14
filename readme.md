@@ -6,7 +6,7 @@ npm i express
 
 npm i mongodb cors dotenv uuid multer
 
-# package.json config
+# Config package.json
 
 - in package.json:
 
