@@ -5,9 +5,7 @@ import { dbo } from "../utils/db.js";
 
 export const addOneMovie = async (req, res) => {
   try {
-    // Extract data from the body of the request
     const movie = {
-      movieImage: req.body.movieImage,
       movieTitle: req.body.movieTitle,
       movieReleaseYear: Number(req.body.movieReleaseYear),
       movieRuntime: Number(req.body.movieRuntime),
