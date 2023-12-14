@@ -36,3 +36,7 @@ MONGODB=mongodb://YOURADRESS
 DATABASENAME=YOURDBNAME
 
 ```
+
+- One Movie has this Propierties
+
+![movie](/assets/img/dataProps.png)

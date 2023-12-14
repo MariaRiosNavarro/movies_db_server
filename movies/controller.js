@@ -12,6 +12,7 @@ export const addOneMovie = async (req, res) => {
       movieDescription: req.body.movieDescription,
       movieRating: Number(req.body.movieRating),
       movieVoteCount: Number(req.body.movieVoteCount),
+      //Genres is an Array of genres
       movieGenres: req.body.movieGenres,
       movieLanguage: req.body.movieLanguage,
     };
