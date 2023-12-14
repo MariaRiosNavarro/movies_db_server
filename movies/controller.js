@@ -67,10 +67,6 @@ export const getOneMovie = async (req, res) => {
   try {
     const id = req.params.id;
 
-    //No id handling
-    if (!id) {
-      return res.status(400).json({ error: "Movie ID is missing" });
-    }
     //Wait & recibe Data
     const dbResponse = await dbo
       .collection("movies")
@@ -105,6 +101,12 @@ export const deleteOneMovie = async (req, res) => {
     const dbResponse = await dbo
       .collection("movies")
       .deleteOne({ _id: new ObjectId(id) });
+
+    //No Response handling
+    if (!dbResponse) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
     //Confirmation back
     res
       .status(200)
@@ -129,6 +131,12 @@ export const editOneMovie = async (req, res) => {
     const dbResponse = await dbo
       .collection("movies")
       .updateOne({ _id: new ObjectId(id) }, { $set: newData });
+
+    //No Response handling
+    if (!dbResponse) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
     //Confirmation back
     res.status(201).json({
       message: `Movie with id= ${id} sucessfully updated ✅`,
