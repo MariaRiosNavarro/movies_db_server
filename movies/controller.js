@@ -1,21 +1,22 @@
 import { dbo } from "../utils/db.js";
 import { ObjectId } from "mongodb";
+import fs from "fs/promises";
+import { log } from "console";
 
 //!Add One Movie
 
 export const addOneMovie = async (req, res) => {
   try {
-    const movie = {
-      movieTitle: req.body.movieTitle,
-      movieReleaseYear: Number(req.body.movieReleaseYear),
-      movieRuntime: Number(req.body.movieRuntime),
-      movieDescription: req.body.movieDescription,
-      movieRating: Number(req.body.movieRating),
-      movieVoteCount: Number(req.body.movieVoteCount),
-      //Genres is an Array of genres
-      movieGenres: req.body.movieGenres,
-      movieLanguage: req.body.movieLanguage,
-    };
+    const movie = req.body;
+    //Hnadle Image
+    movie.movieImage = req.file.path;
+    //Save Number Values
+    movie.movieReleaseYear = Number(movie.movieReleaseYear);
+    movie.movieRuntime = Number(movie.movieRuntime);
+    movie.movieRating = Number(movie.movieRating);
+    movie.movieVoteCounmovieVoteCount = Number(movie.movieVoteCount);
+    //Genres is an Array of genres
+    movie.movieGenres = Array(movie.movieGenres);
 
     // Check if at least the movie.movieTitle is present
     if (!movie.movieTitle) {
@@ -89,7 +90,7 @@ export const getOneMovie = async (req, res) => {
   }
 };
 
-//!Delete One Movie
+//!Delete One Movie & the file (img) if it is here in uploads
 
 export const deleteOneMovie = async (req, res) => {
   try {
@@ -97,23 +98,42 @@ export const deleteOneMovie = async (req, res) => {
     if (!id) {
       return res.status(400).json({ error: "Movie ID is missing" });
     }
-    //Wait & remove one movie
-    const dbResponse = await dbo
+
+    // Find Movie Details
+    const dbFindMovie = await dbo
       .collection("movies")
-      .deleteOne({ _id: new ObjectId(id) });
+      .findOne({ _id: new ObjectId(id) });
 
-    //No Response handling
-    if (!dbResponse) {
+    if (!dbFindMovie) {
       return res.status(404).json({ message: "Movie not found" });
-    }
+    } else {
+      // Save the image path before deleting the movie
+      let serverImage = dbFindMovie.movieImage;
+      // Remove the movie
+      const dbResponse = await dbo
+        .collection("movies")
+        .deleteOne({ _id: new ObjectId(id) });
 
-    //Confirmation back
-    res
-      .status(200)
-      .json({ message: `Movie with id= ${id} sucessfully deleted ✅` });
+      if (!dbResponse.deletedCount) {
+        return res.status(404).json({ message: "Movie not found" });
+      }
+
+      // Delete the image if it's on the server
+      if (serverImage.includes("upload")) {
+        console.log("yes--------------😺");
+        console.log("serverimage--------", serverImage);
+        await fs.unlink(serverImage);
+      } else {
+        console.log("NO--------------👽");
+        console.log("serverimage--------", serverImage);
+      }
+
+      res
+        .status(200)
+        .json({ message: `Movie with id= ${id} successfully deleted ✅` });
+    }
   } catch (error) {
-    // Handle errors
-    console.error(`Error deleting Movie with id= ${id} ❌:`, error);
+    console.error(`Error deleting Movie with id=  ❌:`, error);
     res.status(500).json({ error: "Internal Server Error ❌" });
   }
 };

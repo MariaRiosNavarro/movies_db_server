@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json()); //body parser -> header 'Content-Type': 'application/json'
 
+app.use("/uploads", express.static("./uploads"));
 app.use("/api", moviesRouter);
 
 app.listen(process.env.PORT, () =>
