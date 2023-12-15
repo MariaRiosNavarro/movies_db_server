@@ -7,7 +7,7 @@ import fs from "fs/promises";
 export const addOneMovie = async (req, res) => {
   try {
     const movie = req.body;
-    //Hnadle Image
+    //Handle Image
     movie.movieImage = req.file.path;
     //Save Number Values
     movie.movieReleaseYear = Number(movie.movieReleaseYear);
@@ -126,7 +126,7 @@ export const deleteOneMovie = async (req, res) => {
           serverImage
         );
       }
-
+      //Confirmation back
       res
         .status(200)
         .json({ message: `Movie with id= ${id} successfully deleted ✅` });
@@ -145,22 +145,60 @@ export const editOneMovie = async (req, res) => {
     if (!id) {
       return res.status(400).json({ error: "Movie ID is missing" });
     }
-    const newData = req.body;
-    //Wait & update one movie
-    const dbResponse = await dbo
-      .collection("movies")
-      .updateOne({ _id: new ObjectId(id) }, { $set: newData });
 
-    //No Response handling
-    if (!dbResponse) {
-      return res.status(404).json({ message: "Movie not found" });
+    // Save new Data
+    const newData = req.body;
+
+    //Check if we have new file/Image in the new data->add the path to the newData
+    let newImageFile = req.file;
+
+    if (newImageFile) {
+      newData.movieImage = newImageFile.path;
     }
 
-    //Confirmation back
-    res.status(201).json({
-      message: `Movie with id= ${id} sucessfully updated ✅`,
-      data: newData,
-    });
+    // Find Old Movie Details
+    const dbFindOldMovie = await dbo
+      .collection("movies")
+      .findOne({ _id: new ObjectId(id) });
+
+    //If we dont find the Movie id, save the movie as new Movie and close (return) the function
+    if (!dbFindOldMovie) {
+      await addOneMovie(req, res);
+      return;
+    } else {
+      // Save the image path before the possibility to deleting the old image in our server
+      let oldImage = dbFindOldMovie.movieImage;
+
+      //Wait & update the movie with the new data
+      const dbResponse = await dbo
+        .collection("movies")
+        .updateOne({ _id: new ObjectId(id) }, { $set: newData });
+
+      //No Response handling
+      if (!dbResponse) {
+        return res.status(404).json({ message: "Movie to update dont found" });
+      }
+
+      // Verify that newData.movieImage exists before attempting
+      // to delete the old image. Check to make sure that there
+      // really is a new image before trying to delete the old one.
+
+      if (
+        newData.movieImage &&
+        newData.movieImage.includes("upload") &&
+        oldImage.includes("upload")
+      ) {
+        await fs.unlink(oldImage);
+      } else {
+        console.log("We don't need to remove the old image", oldImage);
+      }
+
+      //Confirmation back
+      res.status(201).json({
+        message: `Movie with id= ${id} sucessfully updated ✅`,
+        data: newData,
+      });
+    }
   } catch (error) {
     // Handle errors
     console.error("Error editing Movie ❌:", error);
