@@ -1,7 +1,6 @@
 import { dbo } from "../utils/db.js";
 import { ObjectId } from "mongodb";
 import fs from "fs/promises";
-import { log } from "console";
 
 //!Add One Movie
 
