@@ -120,12 +120,12 @@ export const deleteOneMovie = async (req, res) => {
 
       // Delete the image if it's on the server
       if (serverImage.includes("upload")) {
-        console.log("yes--------------😺");
-        console.log("serverimage--------", serverImage);
         await fs.unlink(serverImage);
       } else {
-        console.log("NO--------------👽");
-        console.log("serverimage--------", serverImage);
+        console.log(
+          "Image is an external link, we dont need to remove it from server:",
+          serverImage
+        );
       }
 
       res
