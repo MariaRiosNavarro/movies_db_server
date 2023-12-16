@@ -5,6 +5,7 @@ import {
   getOneMovie,
   deleteOneMovie,
   editOneMovie,
+  updateFavoriteMovie,
 } from "./controller.js";
 //add multer to parse forms
 import multer from "multer";
@@ -12,10 +13,14 @@ import multer from "multer";
 const upload = multer({ dest: "./uploads" });
 
 export const router = new express.Router();
-//add multer for forms & maybe images in the future, not now  -- upload.single("moviesImage")
+//add multer for forms &  images
 router.post("/movies", upload.single("movieImage"), addOneMovie);
 router.put("/movies/:id", upload.single("movieImage"), editOneMovie);
 //no upload
 router.get("/movies", getAllMovies);
 router.get("/movies/:id", getOneMovie);
 router.delete("/movies/:id", deleteOneMovie);
+
+//--------------------------------------------------------------------------------------PATCH VERSION (no extra "collection" need it)
+
+app.patch("/movies/:id/favorite", updateFavoriteMovie);

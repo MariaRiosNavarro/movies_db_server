@@ -53,10 +53,10 @@ export const getAllMovies = async (req, res) => {
     res
       .status(200)
       //Confirmation back & data to frontend
-      .json({ message: "Quotes successfully retrieved ✅", data: dbResponse });
+      .json({ message: "Movies successfully retrieved ✅", data: dbResponse });
   } catch (error) {
     // Handle errors
-    console.error("Error Reading all quotes ❌:", error);
+    console.error("Error Reading all movies ❌:", error);
     res.status(500).json({ error: "Internal Server Error ❌" });
   }
 };
@@ -202,6 +202,43 @@ export const editOneMovie = async (req, res) => {
   } catch (error) {
     // Handle errors
     console.error("Error editing Movie ❌:", error);
+    res.status(500).json({ error: "Internal Server Error ❌" });
+  }
+};
+
+//--------------------------------------------------------------------------------------PATCH VERSION (no extra "collection" need it)
+
+// Update Favorite Status
+export const updateFavoriteMovie = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { favorite } = req.body;
+
+    if (favorite === undefined) {
+      return res.status(400).json({ error: "Favorite status is missing" });
+    }
+
+    // Update the favourite characteristic in the database
+    const dbResponse = await dbo
+      .collection("movies")
+      .updateOne({ _id: new ObjectId(id) }, { $set: { favorite } });
+
+    // Response handling
+    if (!dbResponse) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
+    // Confirmation
+    res.status(200).json({
+      message: `Favorite status of movie with id= ${id} successfully updated ✅`,
+      data: { favorite },
+    });
+  } catch (error) {
+    // Error Handling
+    console.error(
+      `Error updating favorite status of movie with id= ${id} ❌:`,
+      error
+    );
     res.status(500).json({ error: "Internal Server Error ❌" });
   }
 };
