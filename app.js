@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { router as moviesRouter } from "./movies/router.js";
 import { router as favoritesRouter } from "./favorites/router.js";
+
 const app = express();
 
 app.use(cors());

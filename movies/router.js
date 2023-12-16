@@ -23,4 +23,4 @@ router.delete("/movies/:id", deleteOneMovie);
 
 //--------------------------------------------------------------------------------------PATCH VERSION (no extra "collection" need it)
 
-app.patch("/movies/:id/favorite", updateFavoriteMovie);
+router.patch("/movies/:id/favorite", updateFavoriteMovie);
