@@ -170,13 +170,27 @@ export const editOneMovie = async (req, res) => {
       let oldImage = dbFindOldMovie.movieImage;
 
       //Wait & update the movie with the new data
-      const dbResponse = await dbo
+      const dbResponseMovies = await dbo
         .collection("movies")
         .updateOne({ _id: new ObjectId(id) }, { $set: newData });
 
-      //No Response handling
-      if (!dbResponse) {
-        return res.status(404).json({ message: "Movie to update dont found" });
+      // Check if the movie ID exists in the "favorites" collection before attempting to update
+      const findMovieInFavorites = await dbo
+        .collection("favorites")
+        .findOne({ _id: new ObjectId(id) });
+
+      if (findMovieInFavorites) {
+        // Wait & update the movie with the new data in the "favorites" collection
+        const dbResponseFavorites = await dbo
+          .collection("favorites")
+          .updateOne({ "movie._id": new ObjectId(id) }, { $set: newData });
+
+        // No Response handling
+        if (!dbResponseMovies || !dbResponseFavorites) {
+          return res.status(404).json({
+            message: "Movie to update not found in either collection",
+          });
+        }
       }
 
       // Verify that newData.movieImage exists before attempting
