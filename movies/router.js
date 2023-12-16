@@ -4,7 +4,7 @@ import {
   getAllMovies,
   getOneMovie,
   deleteOneMovie,
-  editOneMovie,
+  editOneMovieInAllCollections,
   updateFavoriteMovie,
 } from "./controller.js";
 //add multer to parse forms
@@ -15,7 +15,11 @@ const upload = multer({ dest: "./uploads" });
 export const router = new express.Router();
 //add multer for forms &  images
 router.post("/movies", upload.single("movieImage"), addOneMovie);
-router.put("/movies/:id", upload.single("movieImage"), editOneMovie);
+router.put(
+  "/movies/:id",
+  upload.single("movieImage"),
+  editOneMovieInAllCollections
+);
 //no upload
 router.get("/movies", getAllMovies);
 router.get("/movies/:id", getOneMovie);

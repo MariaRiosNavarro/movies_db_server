@@ -137,11 +137,12 @@ export const deleteOneMovie = async (req, res) => {
   }
 };
 
-//!Edit One Movie
+// !Edit One Movie
 
-export const editOneMovie = async (req, res) => {
+export const editOneMovieInAllCollections = async (req, res) => {
   try {
     const id = req.params.id;
+
     if (!id) {
       return res.status(400).json({ error: "Movie ID is missing" });
     }
@@ -149,7 +150,7 @@ export const editOneMovie = async (req, res) => {
     // Save new Data
     const newData = req.body;
 
-    //Check if we have new file/Image in the new data->add the path to the newData
+    //Check if we have a new file/Image in the new data -> add the path to the newData
     let newImageFile = req.file;
 
     if (newImageFile) {
@@ -161,58 +162,67 @@ export const editOneMovie = async (req, res) => {
       .collection("movies")
       .findOne({ _id: new ObjectId(id) });
 
-    //If we dont find the Movie id, save the movie as new Movie and close (return) the function
-    if (!dbFindOldMovie) {
-      await addOneMovie(req, res);
-      return;
-    } else {
-      // Save the image path before the possibility to deleting the old image in our server
-      let oldImage = dbFindOldMovie.movieImage;
+    // Check if the movie ID exists in the "favorites" collection before attempting to update
+    const movieInFavorites = await dbo
+      .collection("favorites")
+      .findOne({ "movie._id": new ObjectId(id) });
 
-      //Wait & update the movie with the new data
-      const dbResponseMovies = await dbo
-        .collection("movies")
-        .updateOne({ _id: new ObjectId(id) }, { $set: newData });
-
-      // Check if the movie ID exists in the "favorites" collection before attempting to update
-      const findMovieInFavorites = await dbo
-        .collection("favorites")
-        .findOne({ _id: new ObjectId(id) });
-
-      if (findMovieInFavorites) {
-        // Wait & update the movie with the new data in the "favorites" collection
-        const dbResponseFavorites = await dbo
-          .collection("favorites")
-          .updateOne({ "movie._id": new ObjectId(id) }, { $set: newData });
-
-        // No Response handling
-        if (!dbResponseMovies || !dbResponseFavorites) {
-          return res.status(404).json({
-            message: "Movie to update not found in either collection",
-          });
-        }
-      }
-
-      // Verify that newData.movieImage exists before attempting
-      // to delete the old image. Check to make sure that there
-      // really is a new image before trying to delete the old one.
-
-      if (
-        newData.movieImage &&
-        newData.movieImage.includes("upload") &&
-        oldImage.includes("upload")
-      ) {
-        await fs.unlink(oldImage);
-      } else {
-        console.log("We don't need to remove the old image", oldImage);
-      }
-
-      //Confirmation back
-      res.status(201).json({
-        message: `Movie with id= ${id} sucessfully updated ✅`,
-        data: newData,
+    // If we don't find the Movie ID in both "movies" and "favorites"
+    if (!dbFindOldMovie && !movieInFavorites) {
+      return res.status(404).json({
+        message: "Movie not found in both 'movies' and 'favorites'",
       });
     }
+
+    // Save the image path before the possibility of deleting the old image on our server
+    let oldImage = dbFindOldMovie ? dbFindOldMovie.movieImage : null;
+
+    // Wait & update the movie with the new data in "movies"
+    const dbResponseMovies = await dbo
+      .collection("movies")
+      .updateOne({ _id: new ObjectId(id) }, { $set: newData });
+
+    // FAVORITES UPDATE
+    // If Movie is in the "favorites" collection, update it
+    if (movieInFavorites) {
+      const dbResponseFavorites = await dbo
+        .collection("favorites")
+        .updateOne({ _id: new ObjectId(id) }, { $set: newData });
+
+      if (dbResponseFavorites.modifiedCount > 0) {
+        // Successful update in the "favorites" collection
+        return res.status(201).json({
+          message: `Movie with id=${id} successfully updated in both collections ✅`,
+          data: newData,
+        });
+      } else {
+        // Handle update error in favorites
+        return res.status(500).json({
+          error: "Error updating movie in favorites ❌",
+        });
+      }
+    }
+
+    // DELETE/CHANGE IMAGE Verify that newData.movieImage exists before attempting
+    // to delete the old image. Check to make sure that there
+    // really is a new image before trying to delete the old one.
+
+    if (
+      newData.movieImage &&
+      newData.movieImage.includes("upload") &&
+      oldImage &&
+      oldImage.includes("upload")
+    ) {
+      await fs.unlink(oldImage);
+    } else {
+      console.log("We don't need to remove the old image", oldImage);
+    }
+
+    // Confirmation back
+    res.status(201).json({
+      message: `Movie with id= ${id} successfully updated ✅`,
+      data: newData,
+    });
   } catch (error) {
     // Handle errors
     console.error("Error editing Movie ❌:", error);
