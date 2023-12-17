@@ -93,9 +93,7 @@ export const removeOneFavoriteMovie = async (req, res) => {
     }
 
     // Find Movie Details
-    const dbFindMovie = await dbo
-      .collection("favorites")
-      .findOne({ _id: new ObjectId(id) });
+    const dbFindMovie = await dbo.collection("favorites").findOne({ _id: id });
 
     if (!dbFindMovie) {
       return res.status(404).json({ message: "Favorite  not found" });
@@ -103,7 +101,7 @@ export const removeOneFavoriteMovie = async (req, res) => {
       // Remove the movie
       const dbResponse = await dbo
         .collection("favorites")
-        .deleteOne({ _id: new ObjectId(id) });
+        .deleteOne({ _id: id });
 
       if (!dbResponse.deletedCount) {
         return res.status(404).json({ message: "Favorite  not found" });
