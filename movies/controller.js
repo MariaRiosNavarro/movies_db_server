@@ -17,7 +17,7 @@ export const addOneMovie = async (req, res) => {
     movie.movieReleaseYear = Number(movie.movieReleaseYear);
     movie.movieRuntime = Number(movie.movieRuntime);
     movie.movieRating = Number(movie.movieRating);
-    movie.movieVoteCounmovieVoteCount = Number(movie.movieVoteCount);
+    movie.movieVoteCount = Number(movie.movieVoteCount);
     //Genres is an Array of genres
     movie.movieGenres = JSON.parse(movie.movieGenres);
 
