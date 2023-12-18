@@ -155,18 +155,20 @@ export const editOneMovieInAllCollections = async (req, res) => {
     const updateMovieData = req.body;
 
     //Handle Image
-    if (req.file) {
-      updateMovieData.movieImage = req.file.path;
-    } else {
-      updateMovieData.movieImage = updateMovieData.movieImage;
-    }
+    // if (req.file) {
+    //   updateMovieData.movieImage = req.file.path;
+    //   console.log("------🙀--imgfile------->", updateMovieData);
+    // } else if(!updateMovieData.movieImage==="") {
+    //   updateMovieData.movieImage = updateMovieData.movieImage;
+    //   console.log("------🙀---imgstring------>", updateMovieData);
+    // }
     //Save Number Values
     updateMovieData.movieReleaseYear = Number(updateMovieData.movieReleaseYear);
     updateMovieData.movieRuntime = Number(updateMovieData.movieRuntime);
     updateMovieData.movieRating = Number(updateMovieData.movieRating);
     updateMovieData.movieVoteCount = Number(updateMovieData.movieVoteCount);
 
-    //    todo genres
+    //GENRES:todo
 
     console.log("------🙀--------->", updateMovieData);
 
