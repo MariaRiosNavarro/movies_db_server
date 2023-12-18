@@ -45,7 +45,7 @@ DATABASENAME=YOURDBNAME
 
 Props of one USER POST
 
-![movie](/assets/img/dataProps.png)
+![movie](/assets/img/postProps.png)
 
 Props of one original Document
 
