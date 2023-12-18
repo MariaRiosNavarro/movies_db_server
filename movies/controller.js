@@ -8,14 +8,18 @@ export const addOneMovie = async (req, res) => {
   try {
     const movie = req.body;
     //Handle Image
-    movie.movieImage = req.file.path;
+    if (!req.file) {
+      movie.movieImage = "";
+    } else {
+      movie.movieImage = req.file.path;
+    }
     //Save Number Values
     movie.movieReleaseYear = Number(movie.movieReleaseYear);
     movie.movieRuntime = Number(movie.movieRuntime);
     movie.movieRating = Number(movie.movieRating);
     movie.movieVoteCounmovieVoteCount = Number(movie.movieVoteCount);
     //Genres is an Array of genres
-    movie.movieGenres = Array(movie.movieGenres);
+    movie.movieGenres = JSON.parse(movie.movieGenres);
 
     // Check if at least the movie.movieTitle is present
     if (!movie.movieTitle) {
